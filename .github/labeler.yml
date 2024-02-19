@@ -17,7 +17,7 @@ bug:
 
 # add 'documentation' label to any PR that begins with docs:
 documentation:
-  - head-branch: ['^docs:']
+  - head-branch: ['^docs']
 
 # add 'refactor' label to any PR that begins with refactor:
 refactor:
