@@ -36,6 +36,10 @@ categories:
   - title: 'Documentation'
     labels:
       - 'documentation'
+  - title: 'Internal'
+    labels:
+      - 'refactor'
+      - 'internal'
 template: |
   ## Changes
 
