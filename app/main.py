@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+PracticeAPI = FastAPI()
 
-@app.get("/")
+
+@PracticeAPI.get("/")
 def home_route():
+    """Return basic Hello World message."""
     return {"Hello": "World"}
