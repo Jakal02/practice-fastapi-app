@@ -10,4 +10,6 @@ Behavior:
 4. Set up precommit for the FastAPI app
 5. Connect FastAPI to Meilisearch
 
-Test commit that should fail
+test edit readme.
+edit again
+edit a third time
