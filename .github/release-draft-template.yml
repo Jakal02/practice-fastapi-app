@@ -10,21 +10,21 @@ version-resolver:
   major:
     labels:
       - 'major'
-      - 'breaking'
+      - 'breaking-change'
   minor:
     labels:
       - 'feature'
   patch:
     labels:
       - 'documentation'
-      - 'bug'
+      - 'bug-fix'
       - 'refactor'
       - 'internal'
   default: patch
 categories:
   - title: 'Breaking Changes'
     labels:
-      - 'breaking'
+      - 'breaking-change'
       - 'major'
   - title: 'Features'
     labels:
