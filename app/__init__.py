@@ -1,1 +1,1 @@
-from main import app as PracticeAPI
+from app.main import app as PracticeAPI
