@@ -21,3 +21,10 @@ Install the project locally with:
 ```bash
 poetry install
 ```
+
+Ruff is used as a formatter and a linter for python code.
+
+
+## Acknowledgements:
+
+Lots of the development in this repository was based off of the work done in [this repo](https://github.com/sanders41/meilisearch-fastapi).
