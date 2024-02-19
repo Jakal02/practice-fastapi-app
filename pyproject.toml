@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "practiceAPI"
+version = "0.1.3"
+description = ""
+authors = ["Sébastien Eustace <sebastien@eustace.io>"]
+readme = "README.md"
+packages = [{include = "poetry_demo"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = {extras = ["all"], version = "^0.109.2"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

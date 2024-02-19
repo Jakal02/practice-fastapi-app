@@ -11,4 +11,8 @@ Behavior:
 4. Set up precommit for the FastAPI app
 5. Connect FastAPI to Meilisearch
 
+## Setup
+
+### Python App
+This project uses Poetry to manage dependencies. Install it if you have not [here](https://python-poetry.org/docs/#installation).  
 
