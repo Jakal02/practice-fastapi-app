@@ -9,7 +9,3 @@ Behavior:
 3. Create a FastAPI app that allows CRUD of Posts
 4. Set up precommit for the FastAPI app
 5. Connect FastAPI to Meilisearch
-
-test edit readme.
-edit again
-edit a third time
