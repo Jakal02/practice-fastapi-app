@@ -17,13 +17,26 @@ Behavior:
 ### Python App
 This project uses Poetry to manage dependencies. Install it if you have not [here](https://python-poetry.org/docs/#installation).  
 
-Install the project locally with: 
+Install the project locally with:
 ```bash
 poetry install
 ```
 
 Ruff is used as a formatter and a linter for python code.
 
+### Pre Commit
+
+When adding pre-commit hooks to the yaml file, they then need to be installed to git. Run the below to do that:
+
+```bash
+poetry run pre-commit install
+```
+
+**NOTE: This WON'T run these new hooks on existing code.**  
+To do that run the following command before your next commit:
+```bash
+poetry run pre-commit run --all-files
+```
 
 ## Acknowledgements:
 
