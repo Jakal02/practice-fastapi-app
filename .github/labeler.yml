@@ -1,0 +1,8 @@
+# Following Documentation for labeler GitHub Action
+# Found Here: https://github.com/actions/labeler
+
+# add 'release' label to any PR opened against main from a 'release-#.#.#'' branch
+release:
+  all:
+    base-branch: ['main']
+    head-branch: ['release-[0-9]+\.[0-9]+\.[0-9]+']
