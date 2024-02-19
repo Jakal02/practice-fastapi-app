@@ -16,3 +16,7 @@ Behavior:
 ### Python App
 This project uses Poetry to manage dependencies. Install it if you have not [here](https://python-poetry.org/docs/#installation).  
 
+Install the project locally with: 
+```bash
+poetry install
+```
