@@ -11,3 +11,4 @@ Behavior:
 5. Connect FastAPI to Meilisearch
 
 Test commit that should fail
+Commit on the pr branch that should go through.
