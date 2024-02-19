@@ -41,7 +41,7 @@ categories:
     labels:
       - 'refactor'
       - 'internal'
-change-template: '- $TITLE. PR #$NUMBER by @$AUTHOR'
+change-template: '- $TITLE | PR #$NUMBER by @$AUTHOR'
 template: |
   ## Changes
 
