@@ -1,11 +1,10 @@
 from datetime import datetime
-from typing import Annotated
 
-from pydantic import BaseModel, PlainSerializer, PositiveInt
+from pydantic import BaseModel, PositiveInt
 
-DateTime = Annotated[
-    datetime, PlainSerializer(lambda x: x.isoformat(), return_type=str)
-]
+# DateTime = Annotated[
+#     datetime, PlainSerializer(lambda x: x.isoformat(), return_type=str)
+# ]
 
 
 class PostCreate(BaseModel):
@@ -19,6 +18,6 @@ class PostRetrieve(PostCreate):
     """Pydantic model supporting post information retrieval."""
 
     id: PositiveInt
-    date_created: DateTime
-    date_modified: DateTime
+    date_created: datetime
+    date_modified: datetime
     is_deleted: bool
