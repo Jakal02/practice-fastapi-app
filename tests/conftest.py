@@ -4,6 +4,7 @@ from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.orm import sessionmaker, Session
 from fastapi.testclient import TestClient
 
+from app.schemas import PostCreate
 from app.api.deps import get_db
 from app.main import PracticeAPI
 from app.database import Base
@@ -21,10 +22,12 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_
 
 
 # Provide Database connection
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def db() -> Generator:
     with Session(test_engine) as session:
+        Base.metadata.create_all(bind=test_engine)
         yield session
+        Base.metadata.drop_all(bind=test_engine)
 
 
 # Startup/Teardown per test
@@ -53,3 +56,22 @@ def override_get_db():
 
 
 PracticeAPI.dependency_overrides[get_db] = override_get_db
+
+
+"""Helper functions for tests."""
+
+
+def _get_test_post_data() -> PostCreate:
+    """
+    Return information for a test post.
+    """
+    return PostCreate(title="test title.", body="test_body.")
+
+
+def num_rows_in_tbl(db: Session, table):
+    """
+    Return number of rows in passed in table.
+    """
+    num_rows = -1
+    num_rows = db.query(table).count()
+    return num_rows
