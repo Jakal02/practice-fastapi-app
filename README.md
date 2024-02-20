@@ -3,14 +3,25 @@ Practice building a FastAPI using best practices for CI/CD.
 
 Here are all of the goals for this repository:
 
-Behavior:
-1. ~~Create a PR labeler to automatically tag PRs by the name~~
-    - This proved to not be productive. Tags should be added manually.
-2. Create a release drafter workflow
+Behavior:  
+1. Create a workflow that makes sure PRs have labels
     - Done
-3. Create a FastAPI app that allows CRUD of Posts
-4. Set up precommit for the FastAPI app
+    - ~~Create a PR labeler to automatically tag PRs by the name~~
+        - This proved to not be productive. Tags should be added manually.
+
+2. Create a release drafter workflow
+    - Done. After every PR, the title is added to a section in the release notes relating to the tag attached to the PR.
+3. Set up precommit for the FastAPI app
+    - Done
+4. Create a FastAPI app that allows CRUD of Posts
+    - [ ] Setup alembic to connect to sqlite database (ignore prod DB considerations for now)
+    - [ ] Create code for Post table using sqlalchemy
+    - [ ] Update database via alembic
+    - [ ] Add CRUD routes for Post
+
 5. Connect FastAPI to Meilisearch
+    - [ ] Set up reading config file to load envrionment variables
+        - no using `os.environ.get()`
 
 ## Setup
 
