@@ -43,6 +43,14 @@ When adding pre-commit hooks to the yaml file, they then need to be installed to
 poetry run pre-commit install
 ```
 
+### Database Local Setup
+
+To create all the relevant database tables, you must run all of the alembic migrations.
+
+```bash
+poetry run alembic ugrade head
+```
+
 **NOTE: This WON'T run these new hooks on existing code.**  
 To do that run the following command before your next commit:
 ```bash

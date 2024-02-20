@@ -9,6 +9,7 @@ packages = [{include = "app"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 fastapi = {extras = ["all"], version = "^0.109.2"}
+alembic = "^1.13.1"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -45,6 +46,6 @@ lint.ignore=[
   "ISC001",
   "ISC002",
 ]
-lint.exclude = ["tests/*"]
+lint.exclude = ["tests/*", "alembic/versions/*"]
 target-version = "py310"
 fix = true
