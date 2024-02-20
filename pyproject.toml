@@ -46,6 +46,6 @@ lint.ignore=[
   "ISC001",
   "ISC002",
 ]
-lint.exclude = ["tests/*"]
+lint.exclude = ["tests/*", "alembic/versions/*"]
 target-version = "py310"
 fix = true
