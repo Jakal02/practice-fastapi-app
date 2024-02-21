@@ -21,7 +21,7 @@ async def create_post(db: SessionDep, data: PostCreate):
 async def get_post(db: SessionDep, id: PositiveInt):
     """Retrieve existing Post object in database with given ID."""
     existing_post = posts.get(db, id)
-    if not existing_post:
+    if not existing_post or existing_post.is_deleted:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, detail=f"post with id {id} not found."
         )
@@ -33,7 +33,7 @@ async def get_post(db: SessionDep, id: PositiveInt):
 async def update_post(db: SessionDep, id: PositiveInt, update_data: PostRetrieve):
     """Update existing Post object in database with provided data."""
     existing_post = posts.get(db, id)
-    if not existing_post:
+    if not existing_post or existing_post.is_deleted:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, detail=f"post with id {id} not found."
         )
@@ -49,7 +49,7 @@ async def update_post(db: SessionDep, id: PositiveInt, update_data: PostRetrieve
 async def ghost_delete_post(db: SessionDep, id: PositiveInt):
     """Ghost delete existing Post object in database with given ID."""
     existing_post = posts.get(db, id)
-    if not existing_post:
+    if not existing_post or existing_post.is_deleted:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, detail=f"post with id {id} not found."
         )
