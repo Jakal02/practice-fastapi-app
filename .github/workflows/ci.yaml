@@ -39,7 +39,5 @@ jobs:
           cache: "poetry"
       - name: Install Dependencies
         run: poetry install
-      - name: Start Test Database
-        run: just start-postgres-detached
-      - name: Run Tests
-        run: just
+      - name: Start Tests
+        run: just tests
