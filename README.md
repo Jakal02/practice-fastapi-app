@@ -58,6 +58,16 @@ To create all the relevant database tables, you must run all of the alembic migr
 poetry run alembic ugrade head
 ```
 
+### Continuous Integration with Just
+
+Just helps run command line commands. Follow [the instructions](https://github.com/casey/just?tab=readme-ov-file#installation) to install it. If you're on a WSL Unbuntu 22.04 system. Follow the instructions to setup [PreBuilt-MPR](https://docs.makedeb.org/prebuilt-mpr/getting-started/#setting-up-the-repository)
+
+Now, to run any of the recipes specified in the `justfile`, just open your command line and run `just RECIPE`. For example, to run pytest, run:
+```bash
+just test
+```
+
 ## Acknowledgements:
 
 Lots of the development in this repository was based off of the work done in [this repo](https://github.com/sanders41/meilisearch-fastapi).
+And [this one](https://github.com/tiangolo/full-stack-fastapi-postgresql/tree/master)
