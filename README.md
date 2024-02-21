@@ -14,15 +14,21 @@ Behavior:
 3. Set up precommit for the FastAPI app
     - Done
 4. Create a FastAPI app that allows CRUD of Posts
-    - [X] Setup alembic to connect to sqlite database (ignore prod DB considerations for now)
+    - [X] ~~Setup alembic to connect to sqlite database (ignore prod DB considerations for now)~~
+        - Set up postgres connection via docker image
+    - [X] Set up reading config file to load envrionment variables
+        - no using `os.environ.get()`
     - [X] Create code for Post table using sqlalchemy
     - [X] Update database via alembic
     - [X] Add CRUD routes for Post
     - [X] Introduce ghost delete functionality
 
 5. Connect FastAPI to Meilisearch
-    - [ ] Set up reading config file to load envrionment variables
-        - no using `os.environ.get()`
+    - [ ] create async process that runs continuously every few seconds
+            - create route to inspect async process
+    - [ ] configure meilisearch via docker
+    - [ ] print to terminal updates made to posts during async process
+    - [ ] update meilisearch index with changes made to posts
 
 ## Setup
 
