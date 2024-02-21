@@ -22,46 +22,46 @@ def _get_test_posts(num: PositiveInt = 1) -> dict | list[dict]:
 
 def test_create_post(client: TestClient, db: Session):
     post_data = _get_test_post_data()
+    rows = num_rows_in_tbl(db, Post)
     response = client.post("/posts/", json=post_data.model_dump())
 
     assert response.status_code == status.HTTP_201_CREATED
-    assert num_rows_in_tbl(db, Post) == 1
-    assert False
+    assert num_rows_in_tbl(db, Post) == 1 + rows
 
 
 def test_true_delete_post(client: TestClient, db: Session):
     post_data = _get_test_post_data()
     made_post = posts.create(db, obj_in=post_data)
-    assert num_rows_in_tbl(db, Post) == 1
+    rows = num_rows_in_tbl(db, Post)
 
     id = made_post.id
     response = client.delete(f"/posts/true_delete/{id}")
 
     assert response.status_code == status.HTTP_202_ACCEPTED
-    assert num_rows_in_tbl(db, Post) == 0
+    assert num_rows_in_tbl(db, Post) == rows - 1
     assert response.json() == jsonable_encoder(made_post)
 
 
 def test_update_post(client: TestClient, db: Session):
     post_data = _get_test_post_data()
     made_post = posts.create(db, obj_in=post_data)
-    assert num_rows_in_tbl(db, Post) == 1
+    rows = num_rows_in_tbl(db, Post)
 
     id = made_post.id
-    update_data = PostUpdate(**jsonable_encoder(made_post))
-    update_data.body = "new body."
+    update_data = jsonable_encoder(made_post)
+    update_data["body"] = "new body."
 
-    response = client.put(f"/posts/{id}", json=jsonable_encoder(update_data))
+    response = client.put(f"/posts/{id}", json=update_data)
 
     assert response.status_code == status.HTTP_200_OK
-    assert num_rows_in_tbl(db, Post) == 1
-    assert response.json() == jsonable_encoder(update_data)
+    assert num_rows_in_tbl(db, Post) == rows
+    assert response.json() == update_data
 
 
 def test_read_post(client: TestClient, db: Session):
     post_data = _get_test_post_data()
     made_post = posts.create(db, obj_in=post_data)
-    assert num_rows_in_tbl(db, Post) == 1
+    rows = num_rows_in_tbl(db, Post)
 
     id = made_post.id
     response = client.get(f"/posts/{id}")
@@ -73,7 +73,7 @@ def test_read_post(client: TestClient, db: Session):
 def test_ghost_delete_post(client: TestClient, db: Session):
     post_data = _get_test_post_data()
     made_post = posts.create(db, obj_in=post_data)
-    assert num_rows_in_tbl(db, Post) == 1
+    rows = num_rows_in_tbl(db, Post)
 
     id = made_post.id
     response = client.delete(f"/posts/{id}")
@@ -82,7 +82,7 @@ def test_ghost_delete_post(client: TestClient, db: Session):
     deleted_data["is_deleted"] = True
 
     assert response.status_code == status.HTTP_202_ACCEPTED
-    assert num_rows_in_tbl(db, Post) == 1
+    assert num_rows_in_tbl(db, Post) == rows
     assert response.json() == deleted_data
 
 

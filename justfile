@@ -6,7 +6,7 @@ set dotenv-load := true
 @tests: start-postgres-detached && stop-postgres
     - sleep 1
     - poetry run alembic upgrade head
-    - poetry run pytest tests/crud/
+    - poetry run pytest
     - poetry run alembic downgrade base
 
 @start-postgres-detached:
