@@ -70,3 +70,4 @@ just test
 ## Acknowledgements:
 
 Lots of the development in this repository was based off of the work done in [this repo](https://github.com/sanders41/meilisearch-fastapi).
+And [this one](https://github.com/tiangolo/full-stack-fastapi-postgresql/tree/master)
