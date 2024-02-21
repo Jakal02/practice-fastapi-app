@@ -17,7 +17,8 @@ Behavior:
     - [X] Setup alembic to connect to sqlite database (ignore prod DB considerations for now)
     - [X] Create code for Post table using sqlalchemy
     - [X] Update database via alembic
-    - [ ] Add CRUD routes for Post
+    - [X] Add CRUD routes for Post
+    - [X] Introduce ghost delete functionality
 
 5. Connect FastAPI to Meilisearch
     - [ ] Set up reading config file to load envrionment variables
