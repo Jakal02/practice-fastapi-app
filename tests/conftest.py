@@ -8,15 +8,12 @@ from app.schemas import PostCreate
 from app.api.deps import get_db
 from app.main import PracticeAPI
 from app.database import Base
+from app.config import settings
 
 # Setup in-memory SQLite database
-DATABASE_URL = "sqlite:///:memory:"
+DATABASE_URL = settings.get_db_uri_string()
 test_engine = create_engine(
     DATABASE_URL,
-    connect_args={
-        "check_same_thread": False,
-    },
-    poolclass=StaticPool,
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
@@ -25,20 +22,16 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_
 @pytest.fixture(scope="function")
 def db() -> Generator:
     with Session(test_engine) as session:
-        Base.metadata.create_all(bind=test_engine)
         yield session
-        Base.metadata.drop_all(bind=test_engine)
 
 
-# Startup/Teardown per test
-@pytest.fixture(scope="function")
-def temp_db():
-    """
-    Create and Destroy all Tables
-    """
-    Base.metadata.create_all(bind=test_engine)
-    yield
-    Base.metadata.drop_all(bind=test_engine)
+# # Startup/Teardown per test
+# @pytest.fixture(scope="function")
+# def temp_db():
+#     """Create and Destroy all Tables."""
+#     Base.metadata.create_all(bind=test_engine)
+#     yield
+#     Base.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture(scope="module")
