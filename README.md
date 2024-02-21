@@ -52,10 +52,20 @@ poetry run pre-commit run --all-files
 
 ### Database Local Setup
 
+To instantiate the database, run:
+```bash
+just start-postgres-detached
+```
+
 To create all the relevant database tables, you must run all of the alembic migrations.
 
 ```bash
 poetry run alembic ugrade head
+```
+
+To close the database run the following command (NOTE: this deletes the database.)
+```bash
+just stop-postgres
 ```
 
 ### Continuous Integration with Just
@@ -64,7 +74,7 @@ Just helps run command line commands. Follow [the instructions](https://github.c
 
 Now, to run any of the recipes specified in the `justfile`, just open your command line and run `just RECIPE`. For example, to run pytest, run:
 ```bash
-just test
+just tests
 ```
 
 ## Acknowledgements:
