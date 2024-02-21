@@ -14,10 +14,11 @@ Behavior:
 3. Set up precommit for the FastAPI app
     - Done
 4. Create a FastAPI app that allows CRUD of Posts
-    - [ ] Setup alembic to connect to sqlite database (ignore prod DB considerations for now)
-    - [ ] Create code for Post table using sqlalchemy
-    - [ ] Update database via alembic
-    - [ ] Add CRUD routes for Post
+    - [X] Setup alembic to connect to sqlite database (ignore prod DB considerations for now)
+    - [X] Create code for Post table using sqlalchemy
+    - [X] Update database via alembic
+    - [X] Add CRUD routes for Post
+    - [X] Introduce ghost delete functionality
 
 5. Connect FastAPI to Meilisearch
     - [ ] Set up reading config file to load envrionment variables
@@ -43,18 +44,18 @@ When adding pre-commit hooks to the yaml file, they then need to be installed to
 poetry run pre-commit install
 ```
 
+**NOTE: This WON'T run these new hooks on existing code.**  
+To do that run the following command before your next commit:
+```bash
+poetry run pre-commit run --all-files
+```
+
 ### Database Local Setup
 
 To create all the relevant database tables, you must run all of the alembic migrations.
 
 ```bash
 poetry run alembic ugrade head
-```
-
-**NOTE: This WON'T run these new hooks on existing code.**  
-To do that run the following command before your next commit:
-```bash
-poetry run pre-commit run --all-files
 ```
 
 ## Acknowledgements:
