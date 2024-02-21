@@ -4,7 +4,7 @@ from tests.conftest import _get_test_post_data, num_rows_in_tbl
 
 from app.crud.posts import posts
 from app.models import Post
-from app.schemas import PostRetrieve
+from app.schemas import PostUpdate
 
 
 def test_create_post(db: Session):
@@ -36,7 +36,7 @@ def test_update_post(db: Session):
 
     db_created = posts.create(db, obj_in=post_data)
 
-    update_data = PostRetrieve(**jsonable_encoder(db_created))
+    update_data = PostUpdate(**jsonable_encoder(db_created))
     update_data.title = "bob"
 
     db_read = posts.update(db, db_obj=db_created, obj_in=update_data)

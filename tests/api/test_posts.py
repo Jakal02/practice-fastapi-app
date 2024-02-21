@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from pydantic import PositiveInt
 from tests.conftest import _get_test_post_data, num_rows_in_tbl
 
-from app.schemas import PostRetrieve
+from app.schemas import PostRetrieve, PostUpdate
 from app.crud.posts import posts
 from app.models import Post
 
@@ -26,6 +26,7 @@ def test_create_post(client: TestClient, db: Session):
 
     assert response.status_code == status.HTTP_201_CREATED
     assert num_rows_in_tbl(db, Post) == 1
+    assert False
 
 
 def test_true_delete_post(client: TestClient, db: Session):
@@ -47,7 +48,7 @@ def test_update_post(client: TestClient, db: Session):
     assert num_rows_in_tbl(db, Post) == 1
 
     id = made_post.id
-    update_data = PostRetrieve(**jsonable_encoder(made_post))
+    update_data = PostUpdate(**jsonable_encoder(made_post))
     update_data.body = "new body."
 
     response = client.put(f"/posts/{id}", json=jsonable_encoder(update_data))
@@ -105,7 +106,7 @@ def test_no_update_when_ghost_deleted(client: TestClient, db: Session):
     posts.update(db, db_obj=made_post, obj_in={"is_deleted": True})
 
     id = made_post.id
-    update_data = PostRetrieve(**jsonable_encoder(made_post))
+    update_data = PostUpdate(**jsonable_encoder(made_post))
     update_data.body = "new body."
 
     response = client.put(f"/posts/{id}", json=jsonable_encoder(update_data))
