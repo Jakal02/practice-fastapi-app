@@ -17,6 +17,9 @@ def _get_test_posts(num: PositiveInt = 1) -> dict | list[dict]:
     return posts[0] if num == 1 else posts
 
 
+## Intended use case tests
+
+
 def test_create_post(client: TestClient, db: Session):
     post_data = _get_test_post_data()
     response = client.post("/posts/", json=post_data.model_dump())
@@ -80,3 +83,42 @@ def test_ghost_delete_post(client: TestClient, db: Session):
     assert response.status_code == status.HTTP_202_ACCEPTED
     assert num_rows_in_tbl(db, Post) == 1
     assert response.json() == deleted_data
+
+
+## Edge Case Tests
+
+
+def test_no_read_when_ghost_deleted(client: TestClient, db: Session):
+    post_data = _get_test_post_data()
+    made_post = posts.create(db, obj_in=post_data)
+    posts.update(db, db_obj=made_post, obj_in={"is_deleted": True})
+
+    id = made_post.id
+    response = client.get(f"/posts/{id}")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_no_update_when_ghost_deleted(client: TestClient, db: Session):
+    post_data = _get_test_post_data()
+    made_post = posts.create(db, obj_in=post_data)
+    posts.update(db, db_obj=made_post, obj_in={"is_deleted": True})
+
+    id = made_post.id
+    update_data = PostRetrieve(**jsonable_encoder(made_post))
+    update_data.body = "new body."
+
+    response = client.put(f"/posts/{id}", json=jsonable_encoder(update_data))
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_no_ghost_delete_when_ghost_deleted(client: TestClient, db: Session):
+    post_data = _get_test_post_data()
+    made_post = posts.create(db, obj_in=post_data)
+    posts.update(db, db_obj=made_post, obj_in={"is_deleted": True})
+
+    id = made_post.id
+    response = client.delete(f"/posts/{id}")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
