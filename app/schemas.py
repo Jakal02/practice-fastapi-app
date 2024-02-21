@@ -22,7 +22,7 @@ class PostUpdate(PostCreate):
     is_deleted: bool
 
 
-class PostRetrieve(PostCreate):
+class PostRetrieve(PostUpdate):
     """Pydantic model supporting post information retrieval."""
 
     id: PositiveInt
