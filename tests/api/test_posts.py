@@ -25,13 +25,13 @@ def test_create_post(client: TestClient, db: Session):
     assert num_rows_in_tbl(db, Post) == 1
 
 
-def test_delete_post(client: TestClient, db: Session):
+def test_true_delete_post(client: TestClient, db: Session):
     post_data = _get_test_post_data()
     made_post = posts.create(db, obj_in=post_data)
     assert num_rows_in_tbl(db, Post) == 1
 
     id = made_post.id
-    response = client.delete(f"/posts/{id}")
+    response = client.delete(f"/posts/true_delete/{id}")
 
     assert response.status_code == status.HTTP_202_ACCEPTED
     assert num_rows_in_tbl(db, Post) == 0
@@ -64,3 +64,19 @@ def test_read_post(client: TestClient, db: Session):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == jsonable_encoder(made_post)
+
+
+def test_ghost_delete_post(client: TestClient, db: Session):
+    post_data = _get_test_post_data()
+    made_post = posts.create(db, obj_in=post_data)
+    assert num_rows_in_tbl(db, Post) == 1
+
+    id = made_post.id
+    response = client.delete(f"/posts/{id}")
+
+    deleted_data = jsonable_encoder(made_post)
+    deleted_data["is_deleted"] = True
+
+    assert response.status_code == status.HTTP_202_ACCEPTED
+    assert num_rows_in_tbl(db, Post) == 1
+    assert response.json() == deleted_data
