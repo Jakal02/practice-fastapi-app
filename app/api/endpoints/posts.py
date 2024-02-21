@@ -4,7 +4,7 @@ from pydantic import PositiveInt
 
 from app.api.deps import SessionDep
 from app.crud.posts import posts
-from app.schemas import PostCreate, PostRetrieve
+from app.schemas import PostCreate, PostRetrieve, PostUpdate
 
 router = APIRouter()
 
@@ -30,7 +30,7 @@ async def get_post(db: SessionDep, id: PositiveInt):
 
 
 @router.put("/{id}", response_model=PostRetrieve, status_code=status.HTTP_200_OK)
-async def update_post(db: SessionDep, id: PositiveInt, update_data: PostRetrieve):
+async def update_post(db: SessionDep, id: PositiveInt, update_data: PostUpdate):
     """Update existing Post object in database with provided data."""
     existing_post = posts.get(db, id)
     if not existing_post or existing_post.is_deleted:
