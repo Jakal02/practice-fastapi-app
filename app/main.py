@@ -1,8 +1,24 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
 from app.api.api import api_router
+from app.database import sessionmanager
 
-PracticeAPI = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Handle startup and shutdown events.
+
+    To understand more, read https://fastapi.tiangolo.com/advanced/events/
+    """
+    yield
+    if sessionmanager._engine is not None:
+        # Close the DB connection
+        await sessionmanager.close()
+
+
+PracticeAPI = FastAPI(lifespan=lifespan)
 
 
 @PracticeAPI.get("/")
