@@ -1,7 +1,9 @@
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
+import pytest
 
 
-def test_index(client: TestClient):
-    response = client.get("/")
+@pytest.mark.anyio
+async def test_index(client: AsyncClient):
+    response = await client.get("/")
 
     assert {"Hello": "World"} == response.json()

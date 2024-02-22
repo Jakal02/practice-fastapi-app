@@ -1,13 +1,15 @@
-from sqlalchemy.orm import Session
-from fastapi.encoders import jsonable_encoder
+import datetime
+import pytest
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import status
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from pydantic import PositiveInt
 from tests.conftest import _get_test_post_data, num_rows_in_tbl
 
 from app.schemas import PostRetrieve, PostUpdate
 from app.crud.posts import posts
 from app.models import Post
+from app.encoders import jsonable_encoder
 
 
 def _get_test_posts(num: PositiveInt = 1) -> dict | list[dict]:
@@ -20,106 +22,118 @@ def _get_test_posts(num: PositiveInt = 1) -> dict | list[dict]:
 ## Intended use case tests
 
 
-def test_create_post(client: TestClient, db: Session):
+@pytest.mark.anyio
+async def test_create_post(client: AsyncClient, session: AsyncSession):
     post_data = _get_test_post_data()
-    rows = num_rows_in_tbl(db, Post)
-    response = client.post("/posts/", json=post_data.model_dump())
+    rows = await num_rows_in_tbl(session, Post)
+    response = await client.post("/posts/", json=post_data.model_dump())
 
     assert response.status_code == status.HTTP_201_CREATED
-    assert num_rows_in_tbl(db, Post) == 1 + rows
+    assert await num_rows_in_tbl(session, Post) == 1 + rows
 
 
-def test_true_delete_post(client: TestClient, db: Session):
+@pytest.mark.anyio
+async def test_true_delete_post(client: AsyncClient, session: AsyncSession):
     post_data = _get_test_post_data()
-    made_post = posts.create(db, obj_in=post_data)
-    rows = num_rows_in_tbl(db, Post)
+    made_post = await posts.create(session, obj_in=post_data)
+    rows = await num_rows_in_tbl(session, Post)
 
     id = made_post.id
-    response = client.delete(f"/posts/true_delete/{id}")
+    response = await client.delete(f"/posts/true_delete/{id}")
 
     assert response.status_code == status.HTTP_202_ACCEPTED
-    assert num_rows_in_tbl(db, Post) == rows - 1
+    assert await num_rows_in_tbl(session, Post) == rows - 1
     assert response.json() == jsonable_encoder(made_post)
 
 
-def test_update_post(client: TestClient, db: Session):
+@pytest.mark.anyio
+async def test_update_post(client: AsyncClient, session: AsyncSession):
     post_data = _get_test_post_data()
-    made_post = posts.create(db, obj_in=post_data)
-    rows = num_rows_in_tbl(db, Post)
+    made_post = await posts.create(session, obj_in=post_data)
+    rows = await num_rows_in_tbl(session, Post)
 
     id = made_post.id
     update_data = jsonable_encoder(made_post)
     update_data["body"] = "new body."
 
-    response = client.put(f"/posts/{id}", json=update_data)
+    response = await client.put(f"/posts/{id}", json=update_data)
 
     assert response.status_code == status.HTTP_200_OK
-    assert num_rows_in_tbl(db, Post) == rows
+    assert await num_rows_in_tbl(session, Post) == rows
     assert response.json() == update_data
 
 
-def test_read_post(client: TestClient, db: Session):
+@pytest.mark.anyio
+async def test_read_post(client: AsyncClient, session: AsyncSession):
     post_data = _get_test_post_data()
-    made_post = posts.create(db, obj_in=post_data)
-    rows = num_rows_in_tbl(db, Post)
+    made_post = await posts.create(session, obj_in=post_data)
+    rows = await num_rows_in_tbl(session, Post)
 
     id = made_post.id
-    response = client.get(f"/posts/{id}")
+    response = await client.get(f"/posts/{id}")
 
     assert response.status_code == status.HTTP_200_OK
+
     assert response.json() == jsonable_encoder(made_post)
+    assert await num_rows_in_tbl(session, Post) == rows
 
 
-def test_ghost_delete_post(client: TestClient, db: Session):
+@pytest.mark.anyio
+async def test_ghost_delete_post(client: AsyncClient, session: AsyncSession):
     post_data = _get_test_post_data()
-    made_post = posts.create(db, obj_in=post_data)
-    rows = num_rows_in_tbl(db, Post)
+    made_post = await posts.create(session, obj_in=post_data)
+    rows = await num_rows_in_tbl(session, Post)
 
     id = made_post.id
-    response = client.delete(f"/posts/{id}")
+    response = await client.delete(f"/posts/{id}")
 
     deleted_data = jsonable_encoder(made_post)
     deleted_data["is_deleted"] = True
 
     assert response.status_code == status.HTTP_202_ACCEPTED
-    assert num_rows_in_tbl(db, Post) == rows
+    assert await num_rows_in_tbl(session, Post) == rows
     assert response.json() == deleted_data
 
 
 ## Edge Case Tests
 
 
-def test_no_read_when_ghost_deleted(client: TestClient, db: Session):
+@pytest.mark.anyio
+async def test_no_read_when_ghost_deleted(client: AsyncClient, session: AsyncSession):
     post_data = _get_test_post_data()
-    made_post = posts.create(db, obj_in=post_data)
-    posts.update(db, db_obj=made_post, obj_in={"is_deleted": True})
+    made_post = await posts.create(session, obj_in=post_data)
+    await posts.update(session, id=made_post.id, obj_in={"is_deleted": True})
 
     id = made_post.id
-    response = client.get(f"/posts/{id}")
+    response = await client.get(f"/posts/{id}")
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-def test_no_update_when_ghost_deleted(client: TestClient, db: Session):
+@pytest.mark.anyio
+async def test_no_update_when_ghost_deleted(client: AsyncClient, session: AsyncSession):
     post_data = _get_test_post_data()
-    made_post = posts.create(db, obj_in=post_data)
-    posts.update(db, db_obj=made_post, obj_in={"is_deleted": True})
+    made_post = await posts.create(session, obj_in=post_data)
+    await posts.update(session, id=made_post.id, obj_in={"is_deleted": True})
 
     id = made_post.id
     update_data = PostUpdate(**jsonable_encoder(made_post))
     update_data.body = "new body."
 
-    response = client.put(f"/posts/{id}", json=jsonable_encoder(update_data))
+    response = await client.put(f"/posts/{id}", json=jsonable_encoder(update_data))
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-def test_no_ghost_delete_when_ghost_deleted(client: TestClient, db: Session):
+@pytest.mark.anyio
+async def test_no_ghost_delete_when_ghost_deleted(
+    client: AsyncClient, session: AsyncSession
+):
     post_data = _get_test_post_data()
-    made_post = posts.create(db, obj_in=post_data)
-    posts.update(db, db_obj=made_post, obj_in={"is_deleted": True})
+    made_post = await posts.create(session, obj_in=post_data)
+    await posts.update(session, id=made_post.id, obj_in={"is_deleted": True})
 
     id = made_post.id
-    response = client.delete(f"/posts/{id}")
+    response = await client.delete(f"/posts/{id}")
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
