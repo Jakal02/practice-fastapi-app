@@ -1,4 +1,4 @@
-from typing import AsyncGenerator, Generator
+from typing import AsyncGenerator
 import pytest
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
@@ -23,7 +23,7 @@ def anyio_backend() -> str:
 @pytest.fixture
 async def session() -> AsyncGenerator:
     # https://github.com/sqlalchemy/sqlalchemy/issues/5811#issuecomment-756269881
-    async_engine = create_async_engine(f"{settings.get_db_uri_string()}")
+    async_engine = create_async_engine(settings.get_db_uri_string())
     async with async_engine.connect() as conn:
         await conn.begin()
         await conn.begin_nested()
