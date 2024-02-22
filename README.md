@@ -22,6 +22,7 @@ Behavior:
     - [X] Update database via alembic
     - [X] Add CRUD routes for Post
     - [X] Introduce ghost delete functionality
+    - [X] Make API async. Test the async functionality
 
 5. Connect FastAPI to Meilisearch
     - [ ] create async process that runs continuously every few seconds
