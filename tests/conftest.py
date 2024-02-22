@@ -1,54 +1,73 @@
-from typing import Generator
+from typing import AsyncGenerator, Generator
 import pytest
-from sqlalchemy import create_engine, StaticPool
-from sqlalchemy.orm import sessionmaker, Session
-from fastapi.testclient import TestClient
+from httpx import AsyncClient, ASGITransport
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy import func, select, event
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session, SessionTransaction
 
 from app.schemas import PostCreate
-from app.api.deps import get_db
 from app.main import PracticeAPI
-from app.database import Base
 from app.config import settings
+from app.database import get_db_session
+from app.models import Post
 
-# Setup in-memory SQLite database
-DATABASE_URL = settings.get_db_uri_string()
-test_engine = create_engine(
-    DATABASE_URL,
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+
+@pytest.fixture
+def anyio_backend() -> str:
+    return "asyncio"
 
 
 # Provide Database connection
+# copied from: https://github.com/rhoboro/async-fastapi-sqlalchemy/blob/main/app/tests/conftest.py
+@pytest.fixture
+async def session() -> AsyncGenerator:
+    # https://github.com/sqlalchemy/sqlalchemy/issues/5811#issuecomment-756269881
+    async_engine = create_async_engine(f"{settings.get_db_uri_string()}")
+    async with async_engine.connect() as conn:
+        await conn.begin()
+        await conn.begin_nested()
+        AsyncSessionLocal = async_sessionmaker(
+            autocommit=False,
+            autoflush=False,
+            bind=conn,
+            future=True,
+        )
+
+        async_session = AsyncSessionLocal()
+
+        @event.listens_for(async_session.sync_session, "after_transaction_end")
+        def end_savepoint(session: Session, transaction: SessionTransaction) -> None:
+            if conn.closed:
+                return
+            if not conn.in_nested_transaction():
+                if conn.sync_connection:
+                    conn.sync_connection.begin_nested()
+
+        async def test_get_session() -> AsyncGenerator:
+            try:
+                yield AsyncSessionLocal()
+            except SQLAlchemyError:
+                pass
+
+        PracticeAPI.dependency_overrides[get_db_session] = test_get_session
+
+        yield async_session
+        await async_session.close()
+        await conn.rollback()
+
+    await async_engine.dispose()
+
+
 @pytest.fixture(scope="function")
-def db() -> Generator:
-    with Session(test_engine) as session:
-        yield session
-
-
-# # Startup/Teardown per test
-# @pytest.fixture(scope="function")
-# def temp_db():
-#     """Create and Destroy all Tables."""
-#     Base.metadata.create_all(bind=test_engine)
-#     yield
-#     Base.metadata.drop_all(bind=test_engine)
-
-
-@pytest.fixture(scope="module")
-def client() -> Generator:
-    with TestClient(PracticeAPI) as c:
+async def client() -> AsyncGenerator:
+    async with AsyncClient(
+        transport=ASGITransport(app=PracticeAPI), base_url="https://test/"
+    ) as c:
         yield c
 
 
-# Overrise the get_db pointer whenever a route depends on a database connection
-def override_get_db():
-    """Open and Close DB Session."""
-    db_sess = TestingSessionLocal()
-    yield db_sess
-    db_sess.close()
-
-
-PracticeAPI.dependency_overrides[get_db] = override_get_db
+# PracticeAPI.dependency_overrides[get_db_session] =
 
 
 """Helper functions for tests."""
@@ -61,10 +80,10 @@ def _get_test_post_data() -> PostCreate:
     return PostCreate(title="test title.", body="test_body.")
 
 
-def num_rows_in_tbl(db: Session, table):
+async def num_rows_in_tbl(db: AsyncSession, table):
     """
     Return number of rows in passed in table.
     """
     num_rows = -1
-    num_rows = db.query(table).count()
-    return num_rows
+    num_rows = await db.execute(select(func.count()).select_from(Post))
+    return num_rows.scalar()
