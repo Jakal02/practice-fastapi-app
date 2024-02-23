@@ -1,7 +1,7 @@
 import pytest
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 from tests.conftest import _get_test_post_data, num_rows_in_tbl
+from fastapi.encoders import jsonable_encoder
 
 from app.crud.posts import posts
 from app.models import Post
@@ -27,9 +27,11 @@ async def test_read_post(session: AsyncSession):
     post_data = _get_test_post_data()
 
     db_post = await posts.create(session, obj_in=post_data)
+    json_post = jsonable_encoder(db_post)
 
     db_read = await posts.get(session, db_post.id)
-    assert db_read == db_post
+    json_read = jsonable_encoder(db_read)
+    assert json_read == json_post
 
 
 @pytest.mark.anyio
@@ -37,16 +39,20 @@ async def test_update_post(session: AsyncSession):
     post_data = _get_test_post_data()
 
     db_created = await posts.create(session, obj_in=post_data)
+    json_created = jsonable_encoder(db_created)
 
-    update_data = PostUpdate(**jsonable_encoder(db_created))
+    update_data = PostUpdate(**json_created)
     update_data.title = "bob"
 
     db_read = await posts.update(session, id=db_created.id, obj_in=update_data)
+    json_read = jsonable_encoder(db_read)
 
-    assert db_read.title != post_data.title
-    assert db_read.title == update_data.title
-    assert db_read.body == post_data.body
-    assert db_read.id == db_created.id
+    assert json_read["title"] != json_created["title"]
+    assert json_read["title"] == update_data.title
+    assert json_read["body"] == post_data.body
+    assert json_read["id"] == json_created["id"]
+    assert json_read["date_modified"] != json_created["date_modified"]
+    assert json_read["date_created"] == json_read["date_created"]
 
 
 @pytest.mark.anyio

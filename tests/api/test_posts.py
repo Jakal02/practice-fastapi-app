@@ -2,6 +2,7 @@ import datetime
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import status
+from fastapi.encoders import jsonable_encoder
 from httpx import AsyncClient
 from pydantic import PositiveInt
 from tests.conftest import _get_test_post_data, num_rows_in_tbl
@@ -9,7 +10,6 @@ from tests.conftest import _get_test_post_data, num_rows_in_tbl
 from app.schemas import PostRetrieve, PostUpdate
 from app.crud.posts import posts
 from app.models import Post
-from app.encoders import jsonable_encoder
 
 
 def _get_test_posts(num: PositiveInt = 1) -> dict | list[dict]:
@@ -49,18 +49,24 @@ async def test_true_delete_post(client: AsyncClient, session: AsyncSession):
 @pytest.mark.anyio
 async def test_update_post(client: AsyncClient, session: AsyncSession):
     post_data = _get_test_post_data()
+    date_begun = datetime.datetime.utcnow()
     made_post = await posts.create(session, obj_in=post_data)
     rows = await num_rows_in_tbl(session, Post)
 
     id = made_post.id
     update_data = jsonable_encoder(made_post)
     update_data["body"] = "new body."
+    update_data.pop("date_modified")
 
     response = await client.put(f"/posts/{id}", json=update_data)
+    date_done = datetime.datetime.utcnow()
+    result: dict = dict(response.json())
+    date_modified = datetime.datetime.fromisoformat(result.pop("date_modified"))
 
     assert response.status_code == status.HTTP_200_OK
     assert await num_rows_in_tbl(session, Post) == rows
-    assert response.json() == update_data
+    assert result == update_data
+    assert date_modified > date_begun and date_modified < date_done
 
 
 @pytest.mark.anyio
@@ -81,18 +87,24 @@ async def test_read_post(client: AsyncClient, session: AsyncSession):
 @pytest.mark.anyio
 async def test_ghost_delete_post(client: AsyncClient, session: AsyncSession):
     post_data = _get_test_post_data()
+    date_started = datetime.datetime.utcnow()
     made_post = await posts.create(session, obj_in=post_data)
     rows = await num_rows_in_tbl(session, Post)
 
     id = made_post.id
     response = await client.delete(f"/posts/{id}")
+    date_stopped = datetime.datetime.utcnow()
+    result: dict = dict(response.json())
+    date_modified = datetime.datetime.fromisoformat(result.pop("date_modified"))
 
     deleted_data = jsonable_encoder(made_post)
+    deleted_data.pop("date_modified")
     deleted_data["is_deleted"] = True
 
     assert response.status_code == status.HTTP_202_ACCEPTED
     assert await num_rows_in_tbl(session, Post) == rows
-    assert response.json() == deleted_data
+    assert result == deleted_data
+    assert date_modified > date_started and date_modified < date_stopped
 
 
 ## Edge Case Tests
