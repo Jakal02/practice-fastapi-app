@@ -65,7 +65,10 @@ class DatabaseSessionManager:
             await session.close()
 
 
-sessionmanager = DatabaseSessionManager(settings.get_db_uri_string(), {"echo": True})
+sessionmanager = DatabaseSessionManager(
+    settings.get_db_uri_string(),
+    {"echo": True, "connect_args": {"options": "-c timezone=utc"}},
+)
 
 
 async def get_db_session():
