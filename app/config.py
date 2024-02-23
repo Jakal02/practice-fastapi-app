@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import PositiveInt, PostgresDsn, ValidationInfo, field_validator
+from pydantic import HttpUrl, PositiveInt, PostgresDsn, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -20,6 +20,10 @@ class APISettings(BaseSettings):
     POSTGRES_PASSWORD: str | None = None
     POSTGRES_DB: str | None = None
     SQLALCHEMY_DATABASE_URI: PostgresDsn | None | str | None = None
+
+    MEILISEARCH_URL: HttpUrl = HttpUrl("http://localhost:7700/")
+    MEILISEARCH_MASTER_KEY: str
+    MEILISEARCH_NO_ANALYTICS: bool = True
 
     @field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
     @classmethod
@@ -41,6 +45,10 @@ class APISettings(BaseSettings):
     def get_db_uri_string(self) -> str:
         """Return the string format of the database URI."""
         return self.SQLALCHEMY_DATABASE_URI.unicode_string()
+
+    def get_meili_url_string(self) -> str:
+        """Return the URL to connect to the meilisearch instance."""
+        return self.MEILISEARCH_URL.unicode_string()
 
 
 settings = APISettings()
