@@ -33,7 +33,7 @@ categories:
       - 'enhancement'
   - title: 'Bug Fixes'
     labels:
-      - 'bug'
+      - 'bug-fix'
   - title: 'Documentation'
     labels:
       - 'documentation'
