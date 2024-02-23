@@ -17,12 +17,11 @@ class PostCreate(BaseModel):
 class PostUpdate(PostCreate):
     """Pydantic model support post information updates."""
 
-    date_created: datetime
-    date_modified: datetime
-    is_deleted: bool
-
 
 class PostRetrieve(PostUpdate):
     """Pydantic model supporting post information retrieval."""
 
     id: PositiveInt
+    date_created: datetime
+    date_modified: datetime
+    is_deleted: bool
