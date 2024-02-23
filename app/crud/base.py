@@ -24,8 +24,16 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         * `model`: A SQLAlchemy model class
         * `schema`: A Pydantic model (schema) class
+
+        **Why ever add to update_excluded_fields:**
+
+        Prevent user injection of bad json somehow.
+
+        Even if the update schema doesn't include them, update allows a plain dictionary.
+        Therefore if a user could pass a dictionary of them and get it to work via the API, we want the database connectors to refuse.
         """
         self.model = model
+        self.update_excluded_fields = set(["id", "date_modified", "date_created"])
 
     async def get(self, db: AsyncSession, id: PositiveInt) -> ModelType | None:
         """Retrieve the object of type ModelType given it's id."""
@@ -50,17 +58,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """Update ModelType passed in with values from relevant fields found in `obj_in`."""
         if isinstance(obj_in, dict):
             update_data = obj_in
+
+            bad_fields = self._get_invalid_update_fields(set(update_data.keys()))
+            if bad_fields:
+                raise KeyError(
+                    f"Fields {bad_fields} are either manual update disallowed, or don't exist."
+                )
         else:
             update_data = obj_in.model_dump(exclude_unset=True)
-        update_data.pop("id", None)
-
-        update_dict = {}
-        for field in self.model.__table__.c.keys():
-            if field in update_data:
-                update_dict[field] = update_data.get(field)
 
         update_stmt = (
-            update(self.model).where(self.model.id == id).values(**update_dict)
+            update(self.model).where(self.model.id == id).values(**update_data)
         )
 
         await db.execute(update_stmt)
@@ -73,3 +81,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         await db.delete(result_obj)
         await db.commit()
         return result_obj
+
+    def _get_invalid_update_fields(self, update_fields: set) -> set:
+        """Return all fields passed in that are not allowed to be updated or don't exist in the table."""
+        updateable_fields = set(self.model.__table__.c.keys()).difference(
+            set(self.update_excluded_fields)
+        )
+        return update_fields.difference(updateable_fields)

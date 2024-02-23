@@ -25,10 +25,11 @@ Behavior:
     - [X] Make API async. Test the async functionality
 
 5. Connect FastAPI to Meilisearch
-    - [ ] create async process that runs continuously every few seconds
+    - [X] create async process that runs continuously every few seconds
             - create route to inspect async process
-    - [ ] configure meilisearch via docker
+    - [X] configure meilisearch via docker
     - [ ] print to terminal updates made to posts during async process
+            - create CRUD function to get all posts not ghost deleted.
     - [ ] update meilisearch index with changes made to posts
 
 ## Setup

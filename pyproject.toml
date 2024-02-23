@@ -13,6 +13,8 @@ asyncpg = "^0.29.0"
 sqlalchemy = {extras = ["asyncio"], version = "^2.0.27"}
 fastapi = "^0.109.2"
 pydantic-settings = "^2.2.1"
+uvicorn = "^0.27.1"
+meilisearch-python-sdk = "^2.6.2"
 
 
 [tool.poetry.group.dev.dependencies]

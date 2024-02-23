@@ -3,9 +3,10 @@
 Copied from: https://medium.com/@tclaitken/setting-up-a-fastapi-app-with-async-sqlalchemy-2-0-pydantic-v2-e6c540be4308
 """
 import contextlib
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator, AsyncIterator
 from typing import Any
 
+from meilisearch_python_sdk import AsyncClient
 from sqlalchemy.ext.asyncio import (
     AsyncConnection,
     AsyncSession,
@@ -71,3 +72,15 @@ async def get_db_session():
     """Get a database session."""
     async with sessionmanager.session() as session:
         yield session
+
+
+# Meilisearch connection
+# copied from: https://github.com/sanders41/meilisearch-fastapi/tree/main
+
+
+async def get_meilisearch_client() -> AsyncGenerator[AsyncClient, None]:
+    """Get a meilisearch client."""
+    async with AsyncClient(
+        url=settings.get_meili_url_string(), api_key=settings.MEILISEARCH_MASTER_KEY
+    ) as client:
+        yield client
