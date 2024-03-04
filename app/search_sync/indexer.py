@@ -4,8 +4,12 @@ Async process which regularly runs.
 """
 
 import asyncio
+import datetime
 
 from pydantic import PositiveInt
+
+from app.crud.posts import posts
+from app.database import get_db_session
 
 
 class BackgroundSearchSyncer:
@@ -26,11 +30,13 @@ class BackgroundSearchSyncer:
     def __init__(self, delay_in_seconds: PositiveInt = 3):
         """Initialize BackgroundSearchSyncer."""
         self.running = True
-        self.updated_at = None
+        self.updated_at = datetime.datetime.utcnow()
         self.delay = delay_in_seconds
 
     async def begin_indexing(self):
         """Run the syncing process."""
         while self.running:
             await asyncio.sleep(self.delay)
-            print("Sync Process Running.")  # noqa T201
+            async for db in get_db_session():
+                posts_modded = await posts.all_posts_modified_since(db, self.updated_at)
+                print("Posts Modified: ", [p.id for p in posts_modded])  # noqa T201
