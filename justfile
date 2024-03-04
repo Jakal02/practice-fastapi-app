@@ -4,7 +4,6 @@ set dotenv-load := true
     poetry run ruff check .
 
 @tests: start-databases-detached && stop-databases
-    sleep 1
     poetry run alembic downgrade base
     poetry run alembic upgrade head
     poetry run pytest
@@ -12,6 +11,11 @@ set dotenv-load := true
 
 @start-databases-detached:
     docker compose up -d
+    sleep 1
 
 @stop-databases:
     docker compose down
+
+@api-startup: start-databases-detached
+    poetry run alembic upgrade head
+    poetry run uvicorn app.main:PracticeAPI --reload
