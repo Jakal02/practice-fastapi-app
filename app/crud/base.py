@@ -2,6 +2,7 @@
 
 Shamelessly copied from https://github.com/tiangolo/full-stack-fastapi-postgresql/blob/master/src/backend/app/app/crud/base.py.
 """
+import datetime
 from typing import Any, Generic, TypeVar
 
 from fastapi.encoders import jsonable_encoder
@@ -66,6 +67,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 )
         else:
             update_data = obj_in.model_dump(exclude_unset=True)
+
+        update_data["date_modified"] = datetime.datetime.utcnow()
 
         update_stmt = (
             update(self.model).where(self.model.id == id).values(**update_data)

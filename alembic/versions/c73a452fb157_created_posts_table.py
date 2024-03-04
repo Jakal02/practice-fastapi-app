@@ -11,6 +11,8 @@ import sqlalchemy as sa
 
 from alembic import op
 
+from datetime import datetime
+
 # revision identifiers, used by Alembic.
 revision: str = "c73a452fb157"
 down_revision: str | None = None
@@ -23,11 +25,11 @@ def upgrade() -> None:
     op.create_table(
         "posts",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("date_created", sa.DateTime(), nullable=True),
-        sa.Column("date_modified", sa.DateTime(), nullable=True),
-        sa.Column("is_deleted", sa.Boolean(), nullable=True),
-        sa.Column("title", sa.String(), nullable=True),
-        sa.Column("body", sa.String(), nullable=True),
+        sa.Column("date_created", sa.DateTime(), nullable=False),
+        sa.Column("date_modified", sa.DateTime(), nullable=False),
+        sa.Column("is_deleted", sa.Boolean(), nullable=False),
+        sa.Column("title", sa.String(), nullable=False),
+        sa.Column("body", sa.String(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_posts_id"), "posts", ["id"], unique=False)
