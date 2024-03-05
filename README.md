@@ -90,3 +90,19 @@ just tests
 
 Lots of the development in this repository was based off of the work done in [this repo](https://github.com/sanders41/meilisearch-fastapi).
 And [this one](https://github.com/tiangolo/full-stack-fastapi-postgresql/tree/master)
+
+
+## Notes
+
+# Limitations of current design:
+
+- I don't know how to test the continuous async process that keeps the search index in-sync with the database.
+    1. Because the pytest environment runs unit tests. I don't think starting the httpx AsyncClient starts the async process
+    2. The true_delete route for posts calls meilisearch directly and then deletes it.
+- I am using the current .env files for running the API locally for testing also. They are not fully decoupled like they should be!
+- I do not know the best design practice for supporting the permanently running background task of syncing the search index to the database.
+    - Should it be an external process? (Some super-process will start the API and this process)
+    - Is the design I have good practice already? If so, there is probably a nuance I am missing still
+- I do like the ghost_delete aspect, but supporting true deletes feels incomplete currently
+    - Because true deletes have to delete from the database and search index at the same time
+    - Real root of the problem is I don't have a way to manage what has been deleted (hence ghost delete, but this also helps keep data)
