@@ -67,7 +67,7 @@ class DatabaseSessionManager:
 
 sessionmanager = DatabaseSessionManager(
     settings.get_db_uri_string(),
-    {"echo": True, "connect_args": {"options": "-c timezone=utc"}},
+    {"echo": True},
 )
 
 

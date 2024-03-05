@@ -11,8 +11,8 @@ class Post(Base):
     __tablename__ = "posts"
 
     id = Column(Integer, primary_key=True, index=True)
-    date_created = Column(DateTime, default=datetime.datetime.utcnow(), nullable=False)
-    date_modified = Column(DateTime, default=datetime.datetime.utcnow(), nullable=False)
+    date_created = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    date_modified = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
     is_deleted = Column(Boolean, default=False, nullable=False)
 
     # Required on Creation
