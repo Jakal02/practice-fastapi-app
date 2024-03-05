@@ -12,6 +12,7 @@ from pydantic import PositiveInt
 
 from app.crud.posts import posts
 from app.database import INDEX_NAME, get_db_session, get_meilisearch_client
+from app.schemas import PostIndexForSearch
 
 
 class BackgroundSearchSyncer:
@@ -43,7 +44,13 @@ class BackgroundSearchSyncer:
             # Gather Changes
             async for db in get_db_session():
                 posts_modded = await posts.all_posts_modified_since(db, self.updated_at)
-                data_of_posts_modded = [jsonable_encoder(p) for p in posts_modded]
+                data_of_posts_modded = [
+                    jsonable_encoder(
+                        PostIndexForSearch(**jsonable_encoder(p)).model_dump()
+                    )
+                    for p in posts_modded
+                ]
+
                 posts_deleted = await posts.all_posts_modified_since(
                     db, self.updated_at, ghost_deleted=True
                 )
