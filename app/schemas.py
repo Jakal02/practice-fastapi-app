@@ -25,3 +25,17 @@ class PostRetrieve(PostUpdate):
     date_created: datetime
     date_modified: datetime
     is_deleted: bool
+
+
+class PostIndexForSearch(PostCreate):
+    """Pydantic model specifying which fields should be indexed for search."""
+
+    id: PositiveInt
+    date_created: datetime
+    date_modified: datetime
+
+
+class SearchParams(BaseModel):
+    """Pydantic model displaying which options go to the search algorithm."""
+
+    query: str
