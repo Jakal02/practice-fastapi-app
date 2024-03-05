@@ -80,6 +80,8 @@ async def get_db_session():
 # Meilisearch connection
 # copied from: https://github.com/sanders41/meilisearch-fastapi/tree/main
 
+INDEX_NAME = "posts"
+
 
 async def get_meilisearch_client() -> AsyncGenerator[AsyncClient, None]:
     """Get a meilisearch client."""
