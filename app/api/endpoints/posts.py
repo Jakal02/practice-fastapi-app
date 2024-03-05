@@ -2,8 +2,9 @@ from fastapi import APIRouter, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from pydantic import PositiveInt
 
-from app.api.deps import DBSessionDep
+from app.api.deps import DBSessionDep, MeiliSessionDep
 from app.crud.posts import posts
+from app.database import INDEX_NAME
 from app.schemas import PostCreate, PostRetrieve, PostUpdate
 
 router = APIRouter()
@@ -64,13 +65,21 @@ async def ghost_delete_post(db: DBSessionDep, id: PositiveInt):
     response_model=PostRetrieve,
     status_code=status.HTTP_202_ACCEPTED,
 )
-async def delete_post(db: DBSessionDep, id: PositiveInt):
-    """Delete existing Post object in database with given ID."""
+async def delete_post(db: DBSessionDep, client: MeiliSessionDep, id: PositiveInt):
+    """Delete existing Post object in database with given ID.
+
+    Also remove it from the search index if it exists.
+    """
     existing_post = await posts.get(db, id)
     if not existing_post:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, detail=f"post with id {id} not found."
         )
+
+    try:
+        await client.index(INDEX_NAME).delete_document(str(id))
+    except Exception:
+        print(f"post with id {id} not found in search index.")  # noqa T201
 
     db_post = await posts.remove(db, id=id)
     return PostRetrieve(**jsonable_encoder(db_post))
