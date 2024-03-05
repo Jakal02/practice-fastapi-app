@@ -39,4 +39,8 @@ class BackgroundSearchSyncer:
             await asyncio.sleep(self.delay)
             async for db in get_db_session():
                 posts_modded = await posts.all_posts_modified_since(db, self.updated_at)
+                posts_deleted = await posts.all_posts_modified_since(
+                    db, self.updated_at, ghost_deleted=True
+                )
                 print("Posts Modified: ", [p.id for p in posts_modded])  # noqa T201
+                print("Posts Deleted: ", [p.id for p in posts_deleted])  # noqa T201

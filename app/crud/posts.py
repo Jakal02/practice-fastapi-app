@@ -19,12 +19,12 @@ class CRUDPost(CRUDBase[Post, PostCreate, PostUpdate]):
         self.update_excluded_fields.update(off_limits_fields)
 
     async def all_posts_modified_since(
-        self, db: AsyncSession, time: datetime
+        self, db: AsyncSession, time: datetime, ghost_deleted=False
     ) -> list[Post]:
-        """Return all posts not ghost deleted modified after `time`."""
+        """Return all posts modified after `time` with ghost_deleted=`ghost_deleted`."""
         stmt = (
             select(Post)
-            .where(co.__eq__(Post.is_deleted, False))
+            .where(co.__eq__(Post.is_deleted, ghost_deleted))
             .where(co.__gt__(Post.date_modified, time))
         )
         results = await db.execute(stmt)
