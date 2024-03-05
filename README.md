@@ -31,6 +31,7 @@ Behavior:
     - [X] print to terminal updates made to posts during async process
             - create CRUD function to get all posts not ghost deleted.
     - [ ] update meilisearch index with changes made to posts
+    - [ ] remove posts from index when post is deleted for real
 
 ## Setup
 
